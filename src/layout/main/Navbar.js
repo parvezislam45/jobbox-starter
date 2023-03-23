@@ -1,11 +1,20 @@
 import { signOut } from "firebase/auth";
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Link, useLocation } from "react-router-dom";
+import { logOut } from "../../Features/Auth/authSlice";
+import auth from "../../firebase/firebase.config";
 
 const Navbar = () => {
   const { pathname } = useLocation();
-
+  const dispatch = useDispatch()
+  const {email, role} = useSelector((state)=> state.auth)
+  const handleLogout = ()=>{
+    signOut(auth).then(()=>{
+      dispatch(logOut ());
+    });
+  }
   return (
     <nav
       className={`h-14 fixed w-full z-[999] ${
@@ -17,19 +26,41 @@ const Navbar = () => {
           <Link to='/'>JobBox</Link>
         </li>
         <li>
-          <Link className='hover:text-primary' to='/jobs'>
+          <Link className='hover:text-primary transition' to='/jobs'>
             Jobs
           </Link>
         </li>
 
-        <li>
+        {email ? (<button onClick={handleLogout} className='hover:text-primary transition-all px-2 py-1'>Logout</button> ): 
+        (<li>
           <Link
             className='border border-black px-2 py-1 rounded-full hover:border-primary hover:text-white hover:bg-primary hover:px-4 transition-all '
             to='/login'
           >
             Login
           </Link>
-        </li>
+        </li>)}
+        {
+          email && role && (<li>
+            <Link
+              className='border border-black px-2 py-1 rounded-full hover:border-primary hover:text-white hover:bg-primary hover:px-4 transition-all '
+              to='/dashboard'
+            >
+              Dashboard
+            </Link>
+          </li>) 
+        }
+
+{
+          email && !role && (<li>
+            <Link
+              className='border border-black px-2 py-1 rounded-full hover:border-primary hover:text-white hover:bg-primary hover:px-4 transition-all '
+              to='/register'
+            >
+              Get Started
+            </Link>
+          </li>) 
+        }
       </ul>
     </nav>
   );

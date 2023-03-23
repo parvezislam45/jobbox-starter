@@ -1,15 +1,34 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 import { useNavigate } from "react-router-dom";
 import loginImage from "../assets/login.svg";
+import { googleLogin, loginUser } from "../Features/Auth/authSlice";
 const Login = () => {
   const { register, handleSubmit, reset } = useForm();
+  const {isLoading,email,isError,error} = useSelector((state)=>state.auth)
   const navigate = useNavigate();
-
-  const onSubmit = (data) => {
-    console.log(data);
+  const dispatch = useDispatch();
+  const onSubmit = ({email,password}) => {
+    dispatch(loginUser({email,password}))
   };
+
+  const handleGoogleLogin = ()=>{
+    dispatch(googleLogin());
+  }
+  useEffect(()=>{
+    if(!isLoading && email) {
+      navigate("/");
+    }
+  },[isLoading,email])
+
+  useEffect(()=>{
+    if(isError){
+      toast.error(error)
+    }
+  },[isError, error])
 
   return (
     <div className='flex h-screen items-center'>
@@ -55,6 +74,15 @@ const Login = () => {
                     Sign up
                   </span>
                 </p>
+              </div>
+              <div className='relative !mt-8'>
+                <button
+                onClick={handleGoogleLogin}
+                  type='submit'
+                  className='font-bold text-white py-3 rounded-full bg-primary w-full'
+                >
+                  Login With Google
+                </button>
               </div>
             </div>
           </form>
